@@ -1,36 +1,35 @@
 import React, {Component} from 'react';
-import logo from './logo.svg';
 import './App.css';
-
 
 
 class App extends Component {
 
-    async componentDidMount() {
-        let tronWeb = window.tronWeb;
-        // 3. get balance
-        tronWeb.trx.getBalance(tronWeb.defaulAddress).then(balance => {
-            console.log({balance});
-        }).catch(err => console.error(err));
-
-
+    componentDidMount() {
+        console.log(111)
     }
+
+    onClick = async () => {
+        console.log(window.tronWeb)
+        let tronWeb = window.tronWeb;
+        const sendTransaction = await tronWeb.trx.sendTransaction("TYNyeyt4vxxeUdaPHKoR6jasx2JEMciZg5", 1000);
+        console.group('Unsigned send TRX transaction');
+        console.log('- Recipient: TGEJj8eus46QMHPgWQe1FJ2ymBXRm96fn1');
+        console.log('- Transaction:\n' + JSON.stringify(sendTransaction, null, 2), '\n');
+        console.groupEnd();
+    };
 
     render() {
         return (
             <div className="App">
-                <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo"/>
-                    <p>
-                        Edit <code>src/App.js</code> and save to reload.
-                    </p>
-                    <a
-                        className="App-link"
-                        href="https://reactjs.org"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    > Learn React </a>
-                </header>
+                <button onClick={this.onClick}>send transaction</button>
+                <button onClick={this.onClick}>send transaction</button>
+                <button onClick={this.onClick}>send transaction</button>
+                <button onClick={this.onClick}>send transaction</button>
+                <button onClick={this.onClick}>send transaction</button>
+                <button onClick={this.onClick}>send transaction</button>
+                <div>
+                    <img src='/logo.jpg' className="App-logo" alt="logo"/>
+                </div>
             </div>
         );
     }

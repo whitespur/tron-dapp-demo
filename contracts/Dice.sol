@@ -20,7 +20,7 @@ contract Dice {
 
     function roll() public payable {
         emit Log(msg.value);
-        require(msg.value > 100);
+//        require(msg.value > 100);
         emit LogA(msg.sender);
         emit RollResult( msg.sender, true);
 

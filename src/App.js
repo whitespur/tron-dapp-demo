@@ -1,29 +1,14 @@
 import React, {Component} from 'react';
 import './App.css';
 import * as DiceContract from './contracts/Dice'
-import TronWeb from 'tronweb';
-
-const HttpProvider = TronWeb.providers.HttpProvider;
-
-const fullNode = new HttpProvider('https://api.shasta.trongrid.io');
-const solidityNode = new HttpProvider('https://api.shasta.trongrid.io');
-const eventServer = 'https://api.shasta.trongrid.io';
-const privateKey = '7c3f3b3826eede41c420fe02a41f1fc0ef4465fb1a6af4591f28382fdc81deae';
-
 
 
 class App extends Component {
 
     constructor(props) {
         super(props);
-        this.tronWeb = new TronWeb(
-            fullNode,
-            solidityNode,
-            eventServer,
-            privateKey
-        );
 
-        this.tronWeb.setDefaultBlock('latest');
+        window.tronWeb.setDefaultBlock('latest');
 
         this.state = {
             address : null,
@@ -36,31 +21,78 @@ class App extends Component {
 
 
 
-        let tronWeb = this.tronWeb;
+        let tronWeb = window.tronWeb;
         this.setState({address : tronWeb.defaultAddress.base58});
 
     }
 
 
     onClick = async () => {
-        let tronWeb = this.tronWeb;
+        let tronWeb = window.tronWeb;
         const sendTransaction = await tronWeb.trx.sendTransaction("TYNyeyt4vxxeUdaPHKoR6jasx2JEMciZg5", 1000);
         console.log('- Transaction:\n' + JSON.stringify(sendTransaction, null, 2), '\n');
     };
 
     refreshBalance = async () => {
-        let tronWeb = this.tronWeb;
+        let tronWeb = window.tronWeb;
         this.state.address && (this.setState({balance : await tronWeb.trx.getBalance(this.address)}));
     };
 
-    onCallContract = async () => {
-        let tronWeb = this.tronWeb;
+    async onCallContract () {
+        let tronWeb = window.tronWeb;
         let address = tronWeb.address.fromHex(DiceContract.networks['*'].address);
         console.log(DiceContract.abi, DiceContract.networks['*'].address, address)
-        let contract = new tronWeb.contract(DiceContract.abi, address);
-
+        let contract = tronWeb.contract(DiceContract.abi, address);
         console.log(contract)
 
+        // 1. register event listener
+        contract && contract.Log().watch((err, event) => {
+            if(err)
+                return console.error('Error with "Message" event:', err);
+
+            console.group('New event received');
+            console.log('- Contract Address:', event.contract);
+            console.log('- Event Name:', event.name);
+            console.log('- Transaction:', event.transaction);
+            console.log('- Block number:', event.block);
+            console.log('- Result:', event.result, '\n');
+            console.groupEnd();
+        });
+
+        contract && contract.LogA().watch((err, event) => {
+            if(err)
+                return console.error('Error with "Message" event:', err);
+
+            console.group('New event received');
+            console.log('- Contract Address:', event.contract);
+            console.log('- Event Name:', event.name);
+            console.log('- Transaction:', event.transaction);
+            console.log('- Block number:', event.block);
+            console.log('- Result:', event.result, '\n');
+            console.groupEnd();
+        });
+
+        contract && contract.RollResult().watch((err, event) => {
+            if(err)
+                return console.error('Error with "Message" event:', err);
+
+            console.group('New event received');
+            console.log('- Contract Address:', event.contract);
+            console.log('- Event Name:', event.name);
+            console.log('- Transaction:', event.transaction);
+            console.log('- Block number:', event.block);
+            console.log('- Result:', event.result, '\n');
+            console.groupEnd();
+        });
+
+
+
+        // 2. send transaction
+        contract.roll().send().then(output => {
+            console.group('Contract "getLast" result');
+            console.log('- Output:', output, '\n');
+            console.groupEnd();
+        });
     };
 
     render() {
@@ -80,7 +112,7 @@ class App extends Component {
                     <hr></hr>
                 </div>
                 <div>
-                    <button onClick={this.onCallContract}>call smart contract</button>
+                    <button onClick={() => this.onCallContract()}>call smart contract</button>
                     <hr></hr>
                 </div>
             </div>

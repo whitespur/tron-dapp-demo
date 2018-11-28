@@ -22,7 +22,7 @@ module.exports = {
     mainnet: {
 // Don't put your private key here, pass it using an env variable, like:
 // PK=da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0 tronbox migrate --network mainnet
-      privateKey: process.env.PK,
+      privateKey: "7c3f3b3826eede41c420fe02a41f1fc0ef4465fb1a6af4591f28382fdc81deae",
       consume_user_resource_percent: 30,
       fee_limit: 100000000,
       fullNode: "https://api.trongrid.io",

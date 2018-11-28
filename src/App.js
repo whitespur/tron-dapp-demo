@@ -3,6 +3,27 @@ import './App.css';
 import * as DiceContract from './contracts/Dice'
 
 
+// function fireMessageSend() {
+//     window.postMessage('msg');
+//
+//     return new Promise(function (resolve, reject) {
+//         window.addEventListener("message", function handler(e) {
+//             console.log(`000`, e.data)
+//             if (e.data === 'response') {
+//                 console.log(`222`)
+//                 e.currentTarget.removeEventListener(e.type, handler);
+//                 resolve('broadcast transaction')
+//             }
+//
+//         });
+//     })
+// }
+//
+// fireMessageSend().then(console.log)
+//
+
+
+
 class App extends Component {
 
     constructor(props) {
@@ -18,8 +39,6 @@ class App extends Component {
     }
 
     async componentDidMount() {
-
-
 
         let tronWeb = window.tronWeb;
         this.setState({address : tronWeb.defaultAddress.base58});
@@ -93,6 +112,7 @@ class App extends Component {
             console.log('- Output:', output, '\n');
             console.groupEnd();
         });
+
     };
 
     render() {

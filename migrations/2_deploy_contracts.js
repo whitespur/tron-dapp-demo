@@ -1,5 +1,5 @@
-var dice = artifacts.require("./Dice.sol");
+var token = artifacts.require("./Token.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(dice);
+  deployer.deploy(token, 1000000, "GUIDE", 6, "GD");
 };

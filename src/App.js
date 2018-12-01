@@ -1,26 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import * as DiceContract from './contracts/Dice'
-
-
-// function fireMessageSend() {
-//     window.postMessage('msg');
-//
-//     return new Promise(function (resolve, reject) {
-//         window.addEventListener("message", function handler(e) {
-//             console.log(`000`, e.data)
-//             if (e.data === 'response') {
-//                 console.log(`222`)
-//                 e.currentTarget.removeEventListener(e.type, handler);
-//                 resolve('broadcast transaction')
-//             }
-//
-//         });
-//     })
-// }
-//
-// fireMessageSend().then(console.log)
-//
+import * as artifact from './contracts/Token'
 
 
 
@@ -31,10 +11,12 @@ class App extends Component {
 
         window.tronWeb.setDefaultBlock('latest');
 
+        this.contract = null;
         this.state = {
             address : null,
             balance : null,
             contract : null,
+            tokenBalance: null,
         }
     }
 
@@ -42,13 +24,18 @@ class App extends Component {
 
         let tronWeb = window.tronWeb;
         this.setState({address : tronWeb.defaultAddress.base58});
-
+        let address = tronWeb.address.fromHex(artifact.networks['*'].address);
+        console.log(artifact.abi, artifact.networks['*'].address, address)
+        this.contract = tronWeb.contract(artifact.abi, address);
+        console.log(this.contract)
+        await this.refreshBalance();
+        await this.refreshTokenBalance();
     }
 
 
     onClick = async () => {
         let tronWeb = window.tronWeb;
-        const sendTransaction = await tronWeb.trx.sendTransaction("TYNyeyt4vxxeUdaPHKoR6jasx2JEMciZg5", 1000);
+        const sendTransaction = await tronWeb.trx.sendTransaction("TKPzfsXRaDmdKh2GuouXw2eyK2HNH9FNQS", 1000);
         console.log('- Transaction:\n' + JSON.stringify(sendTransaction, null, 2), '\n');
     };
 
@@ -57,15 +44,21 @@ class App extends Component {
         this.state.address && (this.setState({balance : await tronWeb.trx.getBalance(this.address)}));
     };
 
+    refreshTokenBalance = async () => {
+        let tronWeb = window.tronWeb;
+        this.state.address &&  this.contract.balances(this.state.address).call().then(output => {
+            console.group('Contract "call" result');
+            console.log('- Output:', output, '\n');
+            this.setState({tokenBalance: output.toString()});
+            console.groupEnd();
+        });
+    };
+
     async onCallContract () {
         let tronWeb = window.tronWeb;
-        let address = tronWeb.address.fromHex(DiceContract.networks['*'].address);
-        console.log(DiceContract.abi, DiceContract.networks['*'].address, address)
-        let contract = tronWeb.contract(DiceContract.abi, address);
-        console.log(contract)
 
         // 1. register event listener
-        contract && contract.Log().watch((err, event) => {
+        this.contract && this.contract.Approval().watch((err, event) => {
             if(err)
                 return console.error('Error with "Message" event:', err);
 
@@ -78,20 +71,7 @@ class App extends Component {
             console.groupEnd();
         });
 
-        contract && contract.LogA().watch((err, event) => {
-            if(err)
-                return console.error('Error with "Message" event:', err);
-
-            console.group('New event received');
-            console.log('- Contract Address:', event.contract);
-            console.log('- Event Name:', event.name);
-            console.log('- Transaction:', event.transaction);
-            console.log('- Block number:', event.block);
-            console.log('- Result:', event.result, '\n');
-            console.groupEnd();
-        });
-
-        contract && contract.RollResult().watch((err, event) => {
+        this.contract && this.contract.Transfer().watch((err, event) => {
             if(err)
                 return console.error('Error with "Message" event:', err);
 
@@ -105,9 +85,8 @@ class App extends Component {
         });
 
 
-
-        // 2. send transaction
-        contract.roll().send().then(output => {
+        // 2. send token
+         let tx = this.contract.transfer("TKPzfsXRaDmdKh2GuouXw2eyK2HNH9FNQS", 100).send().then(output => {
             console.group('Contract "getLast" result');
             console.log('- Output:', output, '\n');
             console.groupEnd();
@@ -123,16 +102,22 @@ class App extends Component {
                     <p>{this.state.address}</p>
                     <hr></hr>
                 </div>
-                    <p>current balance</p>
+                    <p>current trx balance</p>
                     <p>{this.state.balance}</p>
                     <button onClick={this.refreshBalance}>Refresh balance</button>
                     <hr></hr>
                 <div>
-                    <button onClick={this.onClick}>send transaction</button>
+                </div>
+                    <p>current token balance</p>
+                    <p>{this.state.tokenBalance}</p>
+                    <button onClick={this.refreshTokenBalance}>Refresh balance</button>
+                    <hr></hr>
+                <div>
+                    <button onClick={this.onClick}>trx transfer</button>
                     <hr></hr>
                 </div>
                 <div>
-                    <button onClick={() => this.onCallContract()}>call smart contract</button>
+                    <button onClick={() => this.onCallContract()}>token transfer</button>
                     <hr></hr>
                 </div>
             </div>

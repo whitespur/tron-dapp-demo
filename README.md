@@ -1,5 +1,7 @@
 ## Tron dapp demo
 
+Dome for TRON developer guide: https://github.com/maxisacoder/blog/issues/14
+
 ### 1. Setup dependency
 ```
 yarn

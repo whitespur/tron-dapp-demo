@@ -8,6 +8,7 @@ yarn
 ```
 
 ### 2. Compile Contract
+请修改`tronbox.js`填入自己的私钥
 ```
 yarn run migrate
 ```
@@ -16,3 +17,4 @@ yarn run migrate
 ```
 yarn run start
 ```
+
